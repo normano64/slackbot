@@ -184,6 +184,8 @@ func (c *Client) callHandler(channel string, user string, time string, text stri
 	if (strings.HasPrefix(text, "<@"+c.Id+">") || strings.HasPrefix(text, c.Name) || strings.HasPrefix(channel, "D")) && user != c.Id {
 		w := new(bytes.Buffer)
 
+		text = c.removeHighlight(text)
+
 		which, data, err := c.parseString(text)
 		if err != nil {
 			return err
@@ -207,6 +209,20 @@ func (c *Client) callHandler(channel string, user string, time string, text stri
 	}
 
 	return nil
+}
+
+func (c *Client) removeHighlight(text string) string {
+	if strings.HasPrefix(text, "<@"+c.Id+">") {
+		text = text[len("<@"+c.Id+">"):len(text)]
+	} else if strings.HasPrefix(text, c.Name) {
+		text = text[len(c.Id):len(text)]
+	}
+
+	if strings.HasPrefix(text, ":") {
+		text = text[len(":"):len(text)]
+	}
+
+	return text
 }
 
 func (c *Client) parseString(text string) (int, []string, error) {
